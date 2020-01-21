@@ -406,117 +406,118 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser: true, unparam: true, todo: true, evil: true*/
 /*globals Reflect: false, HTMLElement: true, define: true, MutationObserver: false, requestAnimationFrame: false, performance: false, btoa: false*/
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-    __webpack_require__(/*! ./component */ 2),
-    __webpack_require__(/*! ./defaults */ 0),
-    __webpack_require__(/*! ./draw */ 3),
-    __webpack_require__(/*! ./events */ 4),
-    __webpack_require__(/*! ./touch */ 5),
-    __webpack_require__(/*! ./intf */ 6),
-    __webpack_require__(/*! ./contextMenu */ 7),
-    __webpack_require__(/*! ./dom */ 8),
-    __webpack_require__(/*! ./publicMethods */ 9)
+  __webpack_require__(/*! ./component */ 2),
+  __webpack_require__(/*! ./defaults */ 0),
+  __webpack_require__(/*! ./draw */ 3),
+  __webpack_require__(/*! ./events */ 4),
+  __webpack_require__(/*! ./touch */ 5),
+  __webpack_require__(/*! ./intf */ 6),
+  __webpack_require__(/*! ./contextMenu */ 7),
+  __webpack_require__(/*! ./dom */ 8),
+  __webpack_require__(/*! ./publicMethods */ 9)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = (function context(component) {
-    'use strict';
-    component = component();
-    var modules = Array.prototype.slice.call(arguments);
-    function Grid(args) {
-        args = args || {};
-        var self = {};
-        self.isComponent = args.component === undefined;
-        self.isChildGrid = args.parentNode && /canvas-datagrid-(cell|tree)/.test(args.parentNode.nodeType);
-        if (self.isChildGrid) {
-            self.intf = {};
-        } else {
-            self.intf = self.isComponent ? eval('Reflect.construct(HTMLElement, [], new.target)')
-                : document.createElement('canvas');
-        }
-        self.args = args;
-        self.intf.args = args;
-        self.applyComponentStyle = component.applyComponentStyle;
-        self.hyphenateProperty = component.hyphenateProperty;
-        self.dehyphenateProperty = component.dehyphenateProperty;
-        self.createGrid = function grid(args) {
-            args.component = false;
-            return new Grid(args);
-        };
-        modules.forEach(function (module) {
-            module(self);
-        });
-        if (self.isChildGrid) {
-            self.shadowRoot = args.parentNode.shadowRoot;
-            self.parentNode = args.parentNode;
-        } else if (self.intf.createShadowRoot) {
-            self.shadowRoot = self.intf.attachShadow({mode: 'open'});
-            self.parentNode = self.shadowRoot;
-        } else {
-            self.parentNode = self.intf;
-        }
-        self.init();
-        return self.intf;
+  'use strict';
+  component = component();
+  var modules = Array.prototype.slice.call(arguments);
+  function Grid(args) {
+    args = args || {};
+    var self = {};
+    self.isComponent = args.component === undefined;
+    self.isChildGrid = args.parentNode && /canvas-datagrid-(cell|tree)/.test(args.parentNode.nodeType);
+    if (self.isChildGrid) {
+      self.intf = {};
+    } else {
+      // self.intf = self.isComponent ? eval('Reflect.construct(HTMLElement, [], new.target)')
+      // : document.createElement('canvas');
+      self.intf = self.isComponent ? null : document.createElement('canvas');
     }
-    if (window.HTMLElement) {
-        Grid.prototype = Object.create(window.HTMLElement.prototype);
-    }
-    // export web component
-    if (window.customElements) {
-        Grid.observedAttributes = component.getObservableAttributes();
-        Grid.prototype.disconnectedCallback = component.disconnectedCallback;
-        Grid.prototype.attributeChangedCallback = component.attributeChangedCallback;
-        Grid.prototype.connectedCallback = component.connectedCallback;
-        Grid.prototype.adoptedCallback = component.adoptedCallback;
-        window.customElements.define('canvas-datagrid', Grid);
-    }
-    // export global
-    if (window && !window.canvasDatagrid && !window.require) {
-        window.canvasDatagrid = function (args) { return new Grid(args); };
-    }
-    // export amd loader
-    module.exports = function grid(args) {
-        args = args || {};
-        var i, tKeys = ['style', 'formatters', 'sorters', 'filters',
-                    'treeGridAttributes', 'cellGridAttributes', 'data', 'schema'];
-        if (window.customElements && document.body.createShadowRoot) {
-            i = document.createElement('canvas-datagrid');
-            Object.keys(args).forEach(function (argKey) {
-                // set data and parentNode after everything else
-                if (argKey === 'data') { return; }
-                if (argKey === 'parentNode') { return; }
-                // top level keys in args
-                if (tKeys.indexOf(argKey) !== -1) {
-                    tKeys.forEach(function (tKey) {
-                        if (args[tKey] === undefined || tKey !== argKey) { return; }
-                        if (['formatters', 'sorters', 'filters'].indexOf(argKey) !== -1) {
-                            if (typeof args[tKey] === 'object' && args[tKey] !== null) {
-                                Object.keys(args[tKey]).forEach(function (sKey) {
-                                    i[tKey][sKey] = args[tKey][sKey];
-                                });
-                            }
-                        } else {
-                            i[tKey] = args[tKey];
-                        }
-                    });
-                    return;
-                }
-                // all others are attribute level keys
-                i.attributes[argKey] = args[argKey];
-            });
-            if (args.data) {
-                i.data = args.data;
-            }
-            // add to the dom very last to avoid redraws
-            if (args.parentNode) {
-                args.parentNode.appendChild(i);
-            }
-            return i;
-        }
-        args.component = false;
-        i = new Grid(args);
-        if (args.parentNode && args.parentNode.appendChild) {
-            args.parentNode.appendChild(i);
-        }
-        return i;
+    self.args = args;
+    self.intf.args = args;
+    self.applyComponentStyle = component.applyComponentStyle;
+    self.hyphenateProperty = component.hyphenateProperty;
+    self.dehyphenateProperty = component.dehyphenateProperty;
+    self.createGrid = function grid(args) {
+      args.component = false;
+      return new Grid(args);
     };
-    return module.exports;
+    modules.forEach(function (module) {
+      module(self);
+    });
+    if (self.isChildGrid) {
+      self.shadowRoot = args.parentNode.shadowRoot;
+      self.parentNode = args.parentNode;
+    } else if (self.intf.createShadowRoot) {
+      self.shadowRoot = self.intf.attachShadow({ mode: 'open' });
+      self.parentNode = self.shadowRoot;
+    } else {
+      self.parentNode = self.intf;
+    }
+    self.init();
+    return self.intf;
+  }
+  if (window.HTMLElement) {
+    Grid.prototype = Object.create(window.HTMLElement.prototype);
+  }
+  // export web component
+  if (window.customElements) {
+    Grid.observedAttributes = component.getObservableAttributes();
+    Grid.prototype.disconnectedCallback = component.disconnectedCallback;
+    Grid.prototype.attributeChangedCallback = component.attributeChangedCallback;
+    Grid.prototype.connectedCallback = component.connectedCallback;
+    Grid.prototype.adoptedCallback = component.adoptedCallback;
+    window.customElements.define('canvas-datagrid', Grid);
+  }
+  // export global
+  if (window && !window.canvasDatagrid && !window.require) {
+    window.canvasDatagrid = function (args) { return new Grid(args); };
+  }
+  // export amd loader
+  module.exports = function grid(args) {
+    args = args || {};
+    var i, tKeys = ['style', 'formatters', 'sorters', 'filters',
+      'treeGridAttributes', 'cellGridAttributes', 'data', 'schema'];
+    if (window.customElements && document.body.createShadowRoot) {
+      i = document.createElement('canvas-datagrid');
+      Object.keys(args).forEach(function (argKey) {
+        // set data and parentNode after everything else
+        if (argKey === 'data') { return; }
+        if (argKey === 'parentNode') { return; }
+        // top level keys in args
+        if (tKeys.indexOf(argKey) !== -1) {
+          tKeys.forEach(function (tKey) {
+            if (args[tKey] === undefined || tKey !== argKey) { return; }
+            if (['formatters', 'sorters', 'filters'].indexOf(argKey) !== -1) {
+              if (typeof args[tKey] === 'object' && args[tKey] !== null) {
+                Object.keys(args[tKey]).forEach(function (sKey) {
+                  i[tKey][sKey] = args[tKey][sKey];
+                });
+              }
+            } else {
+              i[tKey] = args[tKey];
+            }
+          });
+          return;
+        }
+        // all others are attribute level keys
+        i.attributes[argKey] = args[argKey];
+      });
+      if (args.data) {
+        i.data = args.data;
+      }
+      // add to the dom very last to avoid redraws
+      if (args.parentNode) {
+        args.parentNode.appendChild(i);
+      }
+      return i;
+    }
+    args.component = false;
+    i = new Grid(args);
+    if (args.parentNode && args.parentNode.appendChild) {
+      args.parentNode.appendChild(i);
+    }
+    return i;
+  };
+  return module.exports;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -533,203 +534,208 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser: true, unparam: true, todo: true*/
 /*globals define: true, MutationObserver: false, requestAnimationFrame: false, performance: false, btoa: false*/
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! ./defaults */ 0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (defaults) {
-    'use strict';
-    return function () {
-        var typeMap, component = {};
-        component.dehyphenateProperty = function hyphenateProperty(prop) {
-            prop = prop.replace('--cdg-', '');
-            var p = '', nextLetterCap;
-            Array.prototype.forEach.call(prop, function (char) {
-                if (nextLetterCap) {
-                    nextLetterCap = false;
-                    p += char.toUpperCase();
-                    return;
-                }
-                if (char === '-') {
-                    nextLetterCap = true;
-                    return;
-                }
-                p += char;
-            });
-            return p;
-        };
-        component.hyphenateProperty = function hyphenateProperty(prop, cust) {
-            var p = '';
-            Array.prototype.forEach.call(prop, function (char) {
-                if (char === char.toUpperCase()) {
-                    p += '-' + char.toLowerCase();
-                    return;
-                }
-                p += char;
-            });
-            return (cust ? '--cdg-' : '') + p;
-        };
-        function getDefaultItem(base, item) {
-            var i = {},
-                r;
-            defaults(i);
-            r = i.defaults[base].filter(function (i) {
-                return i[0].toLowerCase() === item.toLowerCase()
-                    || component.hyphenateProperty(i[0]) === item.toLowerCase()
-                    || component.hyphenateProperty(i[0], true) === item.toLowerCase();
-            })[0];
-            return r;
+  'use strict';
+  return function () {
+    var typeMap, component = {};
+    component.dehyphenateProperty = function hyphenateProperty(prop) {
+      prop = prop.replace('--cdg-', '');
+      var p = '', nextLetterCap;
+      Array.prototype.forEach.call(prop, function (char) {
+        if (nextLetterCap) {
+          nextLetterCap = false;
+          p += char.toUpperCase();
+          return;
         }
-        component.applyComponentStyle = function (supressChangeAndDrawEvents, intf) {
-            if (!intf.isComponent) { return; }
-            var cStyle = window.getComputedStyle(intf.tagName === 'CANVAS-DATAGRID' ? intf : intf.canvas, null),
-                defs = {};
-            intf.computedStyle = cStyle;
-            defaults(defs);
-            defs = defs.defaults.styles;
-            defs.forEach(function (def) {
-                var val;
-                val = cStyle.getPropertyValue(component.hyphenateProperty(def[0], true));
-                if (val === "") {
-                    val = cStyle.getPropertyValue(component.hyphenateProperty(def[0], false));
-                }
-                if (val !== "" && typeof val === 'string') {
-                    intf.setStyleProperty(def[0], typeMap[typeof def[1]](val
-                        .replace(/^\s+/, '').replace(/\s+$/, ''), def[1]), true);
-                }
-            });
-            if (!supressChangeAndDrawEvents && intf.dispatchEvent) {
-                requestAnimationFrame(function () { intf.resize(true); });
-                intf.dispatchEvent('stylechanged', intf.style);
-            }
-        };
-        typeMap = {
-            data: function (strData) {
-                try {
-                    return JSON.parse(strData);
-                } catch (e) {
-                    throw new Error('Cannot read JSON data in canvas-datagrid data.');
-                }
-            },
-            schema: function (strSchema) {
-                try {
-                    return JSON.parse(strSchema);
-                } catch (e) {
-                    throw new Error('Cannot read JSON data in canvas-datagrid schema attribute.');
-                }
-            },
-            number: function (strNum, def) {
-                var n = parseInt(strNum, 10);
-                return isNaN(n) ? def : n;
-            },
-            boolean: function (strBool) {
-                return (/true/i).test(strBool);
-            },
-            string: function (str) {
-                return str;
-            }
-        };
-        component.getObservableAttributes = function () {
-            var i = {}, attrs = ['data', 'schema', 'style', 'className', 'name'];
-            defaults(i);
-            i.defaults.attributes.forEach(function (attr) {
-                attrs.push(attr[0].toLowerCase());
-            });
-            return attrs;
-        };
-        component.disconnectedCallback = function () {
-            this.connected = false;
-        };
-        component.connectedCallback = function () {
-            var intf = this;
-            intf.parentDOMNode.innerHTML = "";
-            intf.parentDOMNode.appendChild(intf.canvas);
-            intf.connected = true;
-            component.observe(intf);
-            component.applyComponentStyle(true, intf);
-            intf.resize(true);
-        };
-        component.adoptedCallback = function () {
-            this.resize();
-        };
-        component.attributeChangedCallback = function (attrName, oldVal, newVal) {
-            var tfn, intf = this, def;
-            if (attrName === 'style') {
-                component.applyComponentStyle(false, intf);
-                return;
-            }
-            if (attrName === 'data') {
-                if (intf.dataType === 'application/x-canvas-datagrid') {
-                    intf.dataType = 'application/json+x-canvas-datagrid';
-                }
-                intf.args.data = newVal;
-                return;
-            }
-            if (attrName === 'schema') {
-                intf.args.schema = typeMap.schema(newVal);
-                return;
-            }
-            if (attrName === 'name') {
-                intf.name = newVal;
-                return;
-            }
-            if (attrName === 'class' || attrName === 'className') {
-                return;
-            }
-            def = getDefaultItem('attributes', attrName);
-            if (def) {
-                tfn = typeMap[typeof def[1]];
-                intf.attributes[def[0]] = tfn(newVal);
-                return;
-            }
-            if (/^on/.test(attrName)) {
-                intf.addEventListener('on' + attrName, function (e) {
-                    eval(newVal);
-                });
-            }
-            return;
-        };
-        component.observe = function (intf) {
-            var observer;
-            if (!window.MutationObserver) { return; }
-            intf.applyComponentStyle = function () { component.applyComponentStyle(false, intf); intf.resize(); };
-            /**
-             * Applies the computed css styles to the grid.  In some browsers, changing directives in attached style sheets does not automatically update the styles in this component.  It is necessary to call this method to update in these cases.
-             * @memberof canvasDatagrid
-             * @name applyComponentStyle
-             * @method
-             */
-            observer = new window.MutationObserver(function (mutations) {
-                var checkInnerHTML, checkStyle;
-                Array.prototype.forEach.call(mutations, function (mutation) {
-                    if (mutation.attributeName === 'class'
-                            || mutation.attributeName === 'style') {
-                        checkStyle = true;
-                        return;
-                    }
-                    if (mutation.target.parentNode
-                            && mutation.target.parentNode.nodeName === 'STYLE') {
-                        checkStyle = true;
-                        return;
-                    }
-                    if (mutation.addedNodes.length > 0 || mutation.type === 'characterData') {
-                        checkInnerHTML = true;
-                    }
-                });
-                if (checkStyle) {
-                    intf.applyComponentStyle(false, intf);
-                }
-                if (checkInnerHTML) {
-                    if (intf.dataType === 'application/x-canvas-datagrid') {
-                        intf.dataType = 'application/json+x-canvas-datagrid';
-                    }
-                    intf.data = intf.innerHTML;
-                }
-            });
-            observer.observe(intf, { characterData: true, childList: true, attributes: true, subtree: true });
-            Array.prototype.forEach.call(document.querySelectorAll('style'), function (el) {
-                observer.observe(el, { characterData: true, childList: true, attributes: true, subtree: true });
-            });
-        };
-        return component;
+        if (char === '-') {
+          nextLetterCap = true;
+          return;
+        }
+        p += char;
+      });
+      return p;
     };
+    component.hyphenateProperty = function hyphenateProperty(prop, cust) {
+      var p = '';
+      Array.prototype.forEach.call(prop, function (char) {
+        if (char === char.toUpperCase()) {
+          p += '-' + char.toLowerCase();
+          return;
+        }
+        p += char;
+      });
+      return (cust ? '--cdg-' : '') + p;
+    };
+    function getDefaultItem(base, item) {
+      var i = {},
+        r;
+      defaults(i);
+      r = i.defaults[base].filter(function (i) {
+        return i[0].toLowerCase() === item.toLowerCase()
+          || component.hyphenateProperty(i[0]) === item.toLowerCase()
+          || component.hyphenateProperty(i[0], true) === item.toLowerCase();
+      })[0];
+      return r;
+    }
+    component.applyComponentStyle = function (supressChangeAndDrawEvents, intf) {
+      if (!intf.isComponent) { return; }
+      var cStyle = window.getComputedStyle(intf.tagName === 'CANVAS-DATAGRID' ? intf : intf.canvas, null),
+        defs = {};
+      intf.computedStyle = cStyle;
+      defaults(defs);
+      defs = defs.defaults.styles;
+      defs.forEach(function (def) {
+        var val;
+        val = cStyle.getPropertyValue(component.hyphenateProperty(def[0], true));
+        if (val === "") {
+          val = cStyle.getPropertyValue(component.hyphenateProperty(def[0], false));
+        }
+        if (val !== "" && typeof val === 'string') {
+          intf.setStyleProperty(def[0], typeMap[typeof def[1]](val
+            .replace(/^\s+/, '').replace(/\s+$/, ''), def[1]), true);
+        }
+      });
+      if (!supressChangeAndDrawEvents && intf.dispatchEvent) {
+        requestAnimationFrame(function () { intf.resize(true); });
+        intf.dispatchEvent('stylechanged', intf.style);
+      }
+    };
+    typeMap = {
+      data: function (strData) {
+        try {
+          return JSON.parse(strData);
+        } catch (e) {
+          throw new Error('Cannot read JSON data in canvas-datagrid data.');
+        }
+      },
+      schema: function (strSchema) {
+        try {
+          return JSON.parse(strSchema);
+        } catch (e) {
+          throw new Error('Cannot read JSON data in canvas-datagrid schema attribute.');
+        }
+      },
+      number: function (strNum, def) {
+        var n = parseInt(strNum, 10);
+        return isNaN(n) ? def : n;
+      },
+      boolean: function (strBool) {
+        return (/true/i).test(strBool);
+      },
+      string: function (str) {
+        return str;
+      }
+    };
+    component.getObservableAttributes = function () {
+      var i = {}, attrs = ['data', 'schema', 'style', 'className', 'name'];
+      defaults(i);
+      i.defaults.attributes.forEach(function (attr) {
+        attrs.push(attr[0].toLowerCase());
+      });
+      return attrs;
+    };
+    component.disconnectedCallback = function () {
+      this.connected = false;
+    };
+    component.connectedCallback = function () {
+      var intf = this;
+      intf.parentDOMNode.innerHTML = "";
+      intf.parentDOMNode.appendChild(intf.canvas);
+      intf.connected = true;
+      component.observe(intf);
+      component.applyComponentStyle(true, intf);
+      intf.resize(true);
+    };
+    component.adoptedCallback = function () {
+      this.resize();
+    };
+    component.attributeChangedCallback = function (attrName, oldVal, newVal) {
+      var tfn, intf = this, def;
+      if (attrName === 'style') {
+        component.applyComponentStyle(false, intf);
+        return;
+      }
+      if (attrName === 'data') {
+        if (intf.dataType === 'application/x-canvas-datagrid') {
+          intf.dataType = 'application/json+x-canvas-datagrid';
+        }
+        intf.args.data = newVal;
+        return;
+      }
+      if (attrName === 'schema') {
+        intf.args.schema = typeMap.schema(newVal);
+        return;
+      }
+      if (attrName === 'name') {
+        intf.name = newVal;
+        return;
+      }
+      if (attrName === 'class' || attrName === 'className') {
+        return;
+      }
+      def = getDefaultItem('attributes', attrName);
+      if (def) {
+        tfn = typeMap[typeof def[1]];
+        intf.attributes[def[0]] = tfn(newVal);
+        return;
+      }
+      if (/^on/.test(attrName)) {
+        intf.addEventListener('on' + attrName, function (e) {
+          // eval(newVal);
+        });
+      }
+      return;
+    };
+    component.observe = function (intf) {
+      var observer;
+      if (!window.MutationObserver) { return; }
+      intf.applyComponentStyle = function () { component.applyComponentStyle(false, intf); intf.resize(); };
+      /**
+       * Applies the computed css styles to the grid.  In some browsers, changing directives in attached style sheets does not automatically update the styles in this component.  It is necessary to call this method to update in these cases.
+       * @memberof canvasDatagrid
+       * @name applyComponentStyle
+       * @method
+       */
+      observer = new window.MutationObserver(function (mutations) {
+        var checkInnerHTML, checkStyle;
+        Array.prototype.forEach.call(mutations, function (mutation) {
+          if (mutation.attributeName === 'class'
+            || mutation.attributeName === 'style') {
+            checkStyle = true;
+            return;
+          }
+          if (mutation.target.nodeName === 'STYLE') {
+            checkStyle = true;
+            return;
+          }
+          if (mutation.target.parentNode
+            && mutation.target.parentNode.nodeName === 'STYLE') {
+            checkStyle = true;
+            return;
+          }
+          if (mutation.target === intf && (mutation.addedNodes.length > 0 || mutation.type === 'characterData')) {
+            checkInnerHTML = true;
+          }
+        });
+        if (checkStyle) {
+          intf.applyComponentStyle(false, intf);
+        }
+        if (checkInnerHTML) {
+          if (intf.dataType === 'application/x-canvas-datagrid') {
+            intf.dataType = 'application/json+x-canvas-datagrid';
+          }
+          intf.data = intf.innerHTML;
+        }
+      });
+      observer.observe(intf, { characterData: true, childList: true, attributes: true, subtree: true });
+      Array.prototype.forEach.call(document.querySelectorAll('style'), function (el) {
+        observer.observe(el, { characterData: true, childList: true, attributes: true, subtree: true });
+      });
+    };
+    return component;
+  };
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ }),
 /* 3 */
@@ -2951,7 +2957,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
             document.body.removeEventListener('mousemove', self.freezeMove, false);
             document.body.removeEventListener('mouseup', self.stopFreezeMove, false);
             self.freezeMarkerPosition = undefined;
-            if (self.dispatchEvent('endfreezemove', {NativeEvent: e})) {
+            if (self.dispatchEvent('endfreezemove', {NativeEvent: e, cell: self.currentCell})) {
                 self.frozenRow = self.startFreezeMove.x;
                 self.frozenColumn = self.startFreezeMove.y;
                 self.draw(true);
@@ -3422,6 +3428,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
                     // intentional redefinition of column
                     column = s[self.orders.columns[columnIndex]];
                     if (!column.hidden && headers.indexOf(column.name) !== -1) {
+                        var ev = {NativeEvent: e, column: column};
+                        if(self.dispatchEvent('copyonschema', ev)) {
+                            column = ev.column;
+                        }
+
                         var hVal = (column.name || column.title) || '';
                         if (useHtml) {
                             h.push('<th>' + htmlSafe(hVal) + '</th>');
@@ -3929,6 +3940,24 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
         self.dataType = 'application/x-canvas-datagrid';
         self.orderBy = null;
         self.orderDirection = 'asc';
+        self.orderings = {
+            columns: [],
+            add: function (orderBy, orderDirection, sortFunction) {
+                self.orderings.columns = self.orderings.columns.filter(function (col) {
+                    return col.orderBy !== orderBy;
+                });
+                self.orderings.columns.push({
+                    orderBy: orderBy,
+                    orderDirection: orderDirection,
+                    sortFunction: sortFunction
+                });
+            },
+            sort: function () {
+                self.orderings.columns.forEach(function (col) {
+                    self.data.sort(col.sortFunction(col.orderBy, col.orderDirection));
+                });
+            }
+        };
         self.columnFilters = {};
         self.filters = {};
         self.frozenRow = 0;
@@ -3937,6 +3966,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
         self.scrollCache = { x: [], y: [] };
         self.scrollBox = {};
         self.visibleRows = [];
+        self.visibleCells = [];
         self.sizes = {
             rows: {},
             columns: {},
@@ -4081,6 +4111,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
             }
             return f;
         };
+        self.applyFilter = function () {
+            self.refreshFromOrigialData();
+            Object.keys(self.columnFilters).forEach(function (filter) {
+                var header = self.getHeaderByName(filter);
+                if (!header) {
+                    return;
+                }
+                self.currentFilter = header.filter || self.filter(header.type || 'string');
+                self.data = self.data.filter(function (row) {
+                    return self.currentFilter(row[filter], self.columnFilters[filter]);
+                });
+            });
+            self.resize();
+            self.draw(true);
+        };
+        self.applyDataTransforms = function () {
+            self.applyFilter();
+            self.orderings.sort();
+        }
         self.getBestGuessDataType = function (columnName, data) {
             var t, x, l = data.length;
             for (x = 0; x < l; x += 1) {
@@ -4973,8 +5022,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
                 }
                 // set the unfiltered/sorted data array
                 self.originalData = data;
-                //TODO apply filter to incoming dataset
-                self.data = self.originalData;
+                // apply filter, sort, etc to incoming dataset
+                self.applyDataTransforms();
                 // empty data was set
                 if (!self.schema && (self.data || []).length === 0) {
                     self.tempSchema = [{name: ''}];
@@ -6476,31 +6525,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
          * @param {string} value The value to filter for.
          */
         self.setFilter = function (column, value) {
-            function applyFilter() {
-                self.refreshFromOrigialData();
-                Object.keys(self.columnFilters).forEach(function (filter) {
-                    var header = self.getHeaderByName(column);
-                    if (!header) {
-                        return;
-                    }
-                    self.currentFilter = header.filter || self.filter(column.type || 'string');
-                    self.data = self.data.filter(function (row) {
-                        return self.currentFilter(row[filter], self.columnFilters[filter]);
-                    });
-                });
-                self.resize();
-                self.draw(true);
-            }
             if (column === undefined && value === undefined) {
                 self.columnFilters = {};
-                return applyFilter();
-            }
-            if (column && (value === '' || value === undefined)) {
+            } else if (column && (value === '' || value === undefined)) {
                 delete self.columnFilters[column];
             } else {
                 self.columnFilters[column] = value;
             }
-            applyFilter();
+            self.applyDataTransforms();
         };
         /**
          * Returns the number of pixels to scroll down to line up with row rowIndex.
@@ -6941,7 +6973,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
          * @memberof canvasDatagrid
          * @name order
          * @method
-         * @returns {cell} cell at the selected location.
          * @param {number} columnName Name of the column to be sorted.
          * @param {string} direction `asc` for ascending or `desc` for descending.
          * @param {function} [sortFunction] When defined, override the default sorting method defined in the column's schema and use this one.
@@ -6954,15 +6985,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*jslint browser
                 });
             if (self.dispatchEvent('beforesortcolumn', {name: columnName, direction: direction})) { return; }
             self.orderBy = columnName;
+            self.orderDirection = direction;
             if (!self.data || self.data.length === 0) { return; }
             if (c.length === 0) {
                 throw new Error('Cannot sort.  No such column name');
             }
-            f = sortFunction || self.sorters[c[0].type];
+            f = sortFunction || c[0].sorter || self.sorters[c[0].type];
             if (!f && c[0].type !== undefined) {
                 console.warn('Cannot sort type "%s" falling back to string sort.', c[0].type);
             }
-            self.data = self.data.sort(typeof f === 'function' ? f(columnName, direction) : self.sorters.string);
+            self.orderings.add(columnName, direction, (typeof f === 'function' ? f : self.sorters.string));
+            self.orderings.sort();
             self.dispatchEvent('sortcolumn', {name: columnName, direction: direction});
             self.draw(true);
             if (dontSetStorageData) { return; }
